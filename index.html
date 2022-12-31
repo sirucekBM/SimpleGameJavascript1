@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="korab.js"></script>
+    <script src="strela.js"></script>
+    <script src="enemy.js"></script>
+    <style>
+        #container {
+          width: 500px;
+          height: 500px;
+          margin: auto;
+          border: 3px solid #73AD21;
+          position: relative;
+        }
+        </style>
+</head>
+<script>
+    var ObjektyKorabu = [];
+    var ObjektyEnemy = [];
+    let vyhra = false;
+    let prohra = false;
+
+    function zobrazKorab(){
+        width = Math.floor(Math.random() * 20)+12;
+        height=Math.floor(Math.random() * 15)+8;
+        var y = Math.floor(Math.random() * 50)+400;
+        var x = Math.floor(Math.random() * 500);
+        let nameDiv = 'korab';
+        korabX = new Korab(width,height,x,y,nameDiv,'blue');
+        ObjektyKorabu.push(korabX);
+    }
+
+
+    function zobrazEnemy(){
+
+        const widthE=40;
+        const heightE=20;
+        const boxWrapper = document.getElementById("container");
+        const wrapperW = boxWrapper.clientWidth;
+        const wrapperH = boxWrapper.clientHeight;
+        const countEnemyOnRow = Math.floor( wrapperW / (widthE + (Math.floor(widthE/2))));
+        let xStart = 10;
+        let yStart = 10;
+
+        for(i=0;i<3;i++){
+            x = xStart
+            for(s=0;s<countEnemyOnRow;s++){  
+                enemyX = new Enemy(widthE,heightE,x,yStart,'enemy','red');
+                ObjektyEnemy.push(enemyX);
+                x += 20 + widthE;
+            }
+            yStart += 30;
+        }
+
+    }
+
+
+
+    function vystrel(){
+        ObjektyKorabu[0].vystrel();
+    }
+
+
+    function Posun(){
+
+
+    }
+
+    function moveleft() {
+        ObjektyKorabu[0].PosunXY("L",10); 
+    }
+
+    function moveright() {
+        ObjektyKorabu[0].PosunXY("R",10); 
+    }
+
+    document.onkeydown = checkKey;
+
+function checkKey(e) {
+
+    e = e || window.event;
+
+    if (e.keyCode == '38') {
+        vystrel()
+    }
+    else if (e.keyCode == '40') {
+        // down arrow
+    }
+    else if (e.keyCode == '37') {
+        ObjektyKorabu[0].PosunXY("L",10); 
+    }
+    else if (e.keyCode == '39') {
+        ObjektyKorabu[0].PosunXY("R",10); 
+    }
+
+}
+
+function updateGame(){
+
+    let zasah = false;
+    
+    //-----------posunu střely----------------
+    for ( var i=0; i < ObjektyKorabu.length; i++ ) {
+            ObjektyKorabu[i].pohybStrely();
+        }
+    //-----------posunu enemy----------------
+    for ( var i=0; i < ObjektyEnemy.length; i++ ) {
+            ObjektyEnemy[i].PosunXY(0.3);
+        }
+    
+    //-----------vyhodnotím střelbu----------------
+    for ( var i=0; i < ObjektyEnemy.length; i++ ) {
+        if(zasah==false && prohra == false){
+            let xE = ObjektyEnemy[i].positionX;
+            let yE = ObjektyEnemy[i].positionY;
+            let wE = ObjektyEnemy[i].dimensionX;
+            let hE = ObjektyEnemy[i].dimensionY;
+            let energie = ObjektyEnemy[i].energie;
+            let yKorab = ObjektyKorabu[0].positionY;
+
+            if(yE+wE > yKorab){
+                alert('prohral jsi');
+                zasah = true;
+                prohra = true;
+                i=10000;
+            }
+
+
+
+            if(prohra==false){
+                for( var k = 0; k<ObjektyKorabu[0].seznamStrel.length; k++){
+                    let strelaX = ObjektyKorabu[0].seznamStrel[k].positionX ;
+                    let strelaY = ObjektyKorabu[0].seznamStrel[k].positionY ;
+
+                    if(strelaY <= yE+hE && strelaY - 10 >= yE && zasah == false){
+                        if(strelaX >= xE && strelaX <= xE+wE){
+                            if(energie<2){
+                                ObjektyEnemy[i].EnemyX.remove();
+                                ObjektyEnemy.splice(i, 1);
+                            }
+                            else{
+                                ObjektyEnemy[i].energie = ObjektyEnemy[i].energie - 1; 
+                                ObjektyEnemy[i].EnemyX.style.background = "powderblue"; 
+                            }
+
+
+                            ObjektyKorabu[0].seznamStrel[k].strelaX.remove();
+                            ObjektyKorabu[0].seznamStrel.splice(k, 1);
+                            zasah = true; 
+                            i=10000; 
+                        }
+                    }            
+                }
+            }
+        }
+    }
+
+    if(ObjektyEnemy.length==0 && vyhra == false){
+        alert('vyhrál jsi');
+        vyhra = true;
+    } 
+}
+
+function restartGame(){
+
+    for( var k = 0; k<ObjektyKorabu[0].seznamStrel.length; k++){
+        ObjektyKorabu[0].seznamStrel[k].strelaX.remove();
+        ObjektyKorabu[0].seznamStrel.splice(k, 1);
+    }
+        ObjektyKorabu[0].KorabX.remove();
+        ObjektyKorabu.splice(k, 1);
+
+    for ( var i=0; i < ObjektyEnemy.length; i++ ) {
+        ObjektyEnemy[i].EnemyX.remove();
+    }
+    ObjektyEnemy = [];
+
+    zobrazKorab();
+    zobrazEnemy();
+    vyhra = false;
+    prohra = false;
+
+}
+
+
+function startGame() {
+    restartGame();
+    setInterval(updateGame, 20);
+}
+
+
+</script>
+
+
+
+
+<body onload="zobrazKorab()">
+    <button onclick="restartGame()">Restart</button>    
+    <button onclick="moveleft()">LEFT</button>
+    <button onclick="moveright()">RIGHT</button>
+    <button onclick="startGame()">START</button>
+    <div id="container" >
+
+    </div>
+</body>
+</html>
