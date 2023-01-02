@@ -16,6 +16,9 @@
           border: 3px solid #73AD21;
           position: relative;
         }
+        .exploze{
+            background-image: url("ex2.gif");
+        }
         </style>
 </head>
 <script>
@@ -23,12 +26,14 @@
     var ObjektyEnemy = [];
     let vyhra = false;
     let prohra = false;
+    const boxWrapper = document.getElementById("container");
 
     function zobrazKorab(){
-        width = Math.floor(Math.random() * 20)+12;
+        const boxWrapper = document.getElementById("container");
+        width = Math.floor(Math.random() * 20)+20;
         height=Math.floor(Math.random() * 15)+8;
-        var y = Math.floor(Math.random() * 50)+400;
-        var x = Math.floor(Math.random() * 500);
+        var y = Math.floor(boxWrapper.clientHeight - 40);
+        var x = Math.floor(boxWrapper.clientWidth/2);
         let nameDiv = 'korab';
         korabX = new Korab(width,height,x,y,nameDiv,'blue');
         ObjektyKorabu.push(korabX);
@@ -36,10 +41,9 @@
 
 
     function zobrazEnemy(){
-
+        const boxWrapper = document.getElementById("container");
         const widthE=40;
         const heightE=20;
-        const boxWrapper = document.getElementById("container");
         const wrapperW = boxWrapper.clientWidth;
         const wrapperH = boxWrapper.clientHeight;
         const countEnemyOnRow = Math.floor( wrapperW / (widthE + (Math.floor(widthE/2))));
@@ -123,7 +127,8 @@ function updateGame(){
             let yKorab = ObjektyKorabu[0].positionY;
 
             if(yE+wE > yKorab){
-                alert('prohral jsi');
+                document.getElementById("container").style.backgroundImage = "url(bum.gif)"; 
+                //alert('prohral jsi');
                 zasah = true;
                 prohra = true;
                 i=10000;
@@ -139,12 +144,22 @@ function updateGame(){
                     if(strelaY <= yE+hE && strelaY - 10 >= yE && zasah == false){
                         if(strelaX >= xE && strelaX <= xE+wE){
                             if(energie<2){
+                                ObjektyEnemy[i].EnemyX.style.background = "none";
+                                //ObjektyEnemy[i].EnemyX.style.width ="137px";
+                                //ObjektyEnemy[i].EnemyX.style.height ="200px";
+                                //ObjektyEnemy[i].EnemyX.style.backgroundImage = "url(ex2.gif)"; 
                                 ObjektyEnemy[i].EnemyX.remove();
                                 ObjektyEnemy.splice(i, 1);
                             }
-                            else{
+                            if(energie==2){
                                 ObjektyEnemy[i].energie = ObjektyEnemy[i].energie - 1; 
                                 ObjektyEnemy[i].EnemyX.style.background = "powderblue"; 
+                                ObjektyEnemy[i].EnemyX.style.transform = 'rotate(45deg)';
+                            }
+                            if(energie>2){
+                                ObjektyEnemy[i].energie = ObjektyEnemy[i].energie - 1; 
+                                ObjektyEnemy[i].EnemyX.style.background = "powderblue"; 
+                                ObjektyEnemy[i].EnemyX.style.transform = 'rotate(18deg)';
                             }
 
 
@@ -166,7 +181,7 @@ function updateGame(){
 }
 
 function restartGame(){
-
+    document.getElementById("container").style.backgroundImage = "none";
     for( var k = 0; k<ObjektyKorabu[0].seznamStrel.length; k++){
         ObjektyKorabu[0].seznamStrel[k].strelaX.remove();
         ObjektyKorabu[0].seznamStrel.splice(k, 1);
@@ -203,6 +218,8 @@ function startGame() {
     <button onclick="moveleft()">LEFT</button>
     <button onclick="moveright()">RIGHT</button>
     <button onclick="startGame()">START</button>
+    <br>
+    <a>Hra se ovládá šipkami <---  --->  a výstřel je šipkou dopředu</a>
     <div id="container" >
 
     </div>
